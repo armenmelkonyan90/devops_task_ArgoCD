@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: identidock-ui
   annotations:
     linkerd.io/inject: enabled
+  name: identidock-ui
 spec:
   replicas: 1
   selector:
@@ -11,48 +11,48 @@ spec:
       app: identidock-ui
   strategy:
     rollingUpdate:
-      maxSurge: "25%"
-      maxUnavailable: "25%"
+      maxSurge: 25%
+      maxUnavailable: 25%
   template:
     metadata:
       labels:
         app: identidock-ui
     spec:
-      imagePullSecrets:
-        - name: webapps-reg-secret
       containers:
-        - name: identidock-ui
-          image:
-          ports:
-            - name: identiui-http
-              containerPort: 80
-          env:
-            - name: CACHING_SERVER_IP_ADDRESS
-              value: caching-svc.webapps.svc.cluster.local
-            - name: PING_IP_ADDRESS
-              value: pingserver-svc.webapps.svc.cluster.local
-          readinessProbe:
-            httpGet:
-              port: 80
-              path: /registration
-            successThreshold: 1
-            initialDelaySeconds: 30
-            periodSeconds: 5
-            failureThreshold: 2
-          livenessProbe:
-            httpGet:
-              port: 80
-              path: /registration
-            successThreshold: 1
-            initialDelaySeconds: 45
-            periodSeconds: 10
-            failureThreshold: 2
-          imagePullPolicy: IfNotPresent
-          resources:
-            requests:
-              cpu: "70m"
-              memory: "100Mi"
-            limits:
-              cpu: "140m"
-              memory: "150Mi"
+      - env:
+        - name: CACHING_SERVER_IP_ADDRESS
+          value: caching-svc.webapps.svc.cluster.local
+        - name: PING_IP_ADDRESS
+          value: pingserver-svc.webapps.svc.cluster.local
+        image: devopstaskacr1/frontend_app:0.0.1-RC.5
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /registration
+            port: 80
+          initialDelaySeconds: 45
+          periodSeconds: 10
+          successThreshold: 1
+        name: identidock-ui
+        ports:
+        - containerPort: 80
+          name: identiui-http
+        readinessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /registration
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          successThreshold: 1
+        resources:
+          limits:
+            cpu: 140m
+            memory: 150Mi
+          requests:
+            cpu: 70m
+            memory: 100Mi
+      imagePullSecrets:
+      - name: webapps-reg-secret
       restartPolicy: Always
