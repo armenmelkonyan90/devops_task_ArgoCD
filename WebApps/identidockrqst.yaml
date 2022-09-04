@@ -22,7 +22,7 @@ spec:
       - env:
         - name: PICTO_SERVER_IP_ADDRESS
           value: picto-svc.webapps.svc.cluster.local
-        image: devopstaskacr1/request_app:0.1.1-RC.22
+        image: devopstaskacr1/request_app:0.1.1-RC.23
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 2
