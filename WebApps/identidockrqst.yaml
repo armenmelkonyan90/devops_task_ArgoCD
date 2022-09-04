@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: identidock-requester
   annotations:
     linkerd.io/inject: enabled
+  name: identidock-requester
 spec:
   replicas: 1
   selector:
@@ -11,46 +11,46 @@ spec:
       app: identidock-requester
   strategy:
     rollingUpdate:
-      maxSurge: "100%"
-      maxUnavailable: "0%"
+      maxSurge: 100%
+      maxUnavailable: 0%
   template:
     metadata:
       labels:
         app: identidock-requester
     spec:
-      imagePullSecrets:
-        - name: webapps-reg-secret
       containers:
-        - name: identidock-requester
-          image: 
-          ports:
-            - name: identirqst-http
-              containerPort: 80
-          env:
-            - name: PICTO_SERVER_IP_ADDRESS
-              value: picto-svc.webapps.svc.cluster.local
-          readinessProbe:
-            httpGet:
-              port: 80
-              path: /?email=test
-            successThreshold: 1
-            initialDelaySeconds: 15
-            periodSeconds: 5
-            failureThreshold: 2
-          livenessProbe:
-            httpGet:
-              port: 80
-              path: /?email=test
-            successThreshold: 1
-            initialDelaySeconds: 20
-            periodSeconds: 5
-            failureThreshold: 2
-          imagePullPolicy: IfNotPresent
-          resources:
-            requests:
-              cpu: "70m"
-              memory: "50Mi"
-            limits:
-              cpu: "140m"
-              memory: "100Mi"
+      - env:
+        - name: PICTO_SERVER_IP_ADDRESS
+          value: picto-svc.webapps.svc.cluster.local
+        image: devopstaskacr1/request_app:0.1.1-RC.22
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /?email=test
+            port: 80
+          initialDelaySeconds: 20
+          periodSeconds: 5
+          successThreshold: 1
+        name: identidock-requester
+        ports:
+        - containerPort: 80
+          name: identirqst-http
+        readinessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /?email=test
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          successThreshold: 1
+        resources:
+          limits:
+            cpu: 140m
+            memory: 100Mi
+          requests:
+            cpu: 70m
+            memory: 50Mi
+      imagePullSecrets:
+      - name: webapps-reg-secret
       restartPolicy: Always
