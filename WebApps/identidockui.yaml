@@ -24,7 +24,7 @@ spec:
           value: caching-svc.webapps.svc.cluster.local
         - name: PING_IP_ADDRESS
           value: pingserver-svc.webapps.svc.cluster.local
-        image: devopstaskacr1/frontend_app:0.0.1-RC.5
+        image: devopstaskacr1/frontend_app:0.0.1-RC.6
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 2
