@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  annotations:
+    linkerd.io/inject: enabled
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      db: mongo
+  serviceName: mongodb-svc
+  template:
+    metadata:
+      labels:
+        db: mongo
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:4.2.22
+          ports:
+            - name: mongoport
+              containerPort: 27017
+          readinessProbe:
+            exec:
+              command:
+                - "/usr/bin/pgrep"
+                - "mongo"
+            failureThreshold: 2
+            initialDelaySeconds: 120
+            successThreshold: 1
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - "/usr/bin/pgrep"
+                - "mongo"
+            failureThreshold: 2
+            initialDelaySeconds: 20
+            successThreshold: 1
+            periodSeconds: 5
+          volumeMounts:
+            - name: mongodb-user-data
+              mountPath: /data/db
+      volumes:
+        - name: mongodb-user-data
+          persistentVolumeClaim:
+            claimName: mongodb-userlist-pvc

@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identidock-cacher
+  annotations:
+    linkerd.io/inject: enabled
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: identidock-cacher
+  strategy:
+    rollingUpdate:
+      maxSurge: "100%"
+      maxUnavailable: "0%"
+  template:
+    metadata:
+      labels:
+        app: identidock-cacher
+    spec:
+      imagePullSecrets:
+        - name: webapps-reg-secret
+      containers:
+        - name: identidock-cacher
+          image: 
+          ports:
+            - name: cachingport
+              containerPort: 80
+          env:
+            - name: MONGO_DB_IP_ADDRESS
+              value: mongodb-svc.webapps.svc.cluster.local
+          readinessProbe:
+            httpGet:
+              port: 80
+              path: /isup
+            successThreshold: 1
+            initialDelaySeconds: 0
+            periodSeconds: 5
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              port: 80
+              path: /isup
+            successThreshold: 1
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 2
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "70m"
+              memory: "50Mi"
+            limits:
+              cpu: "140m"
+              memory: "100Mi"
+      restartPolicy: Always

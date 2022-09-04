@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identidock-picto
+  annotations:
+    linkerd.io/inject: enabled
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: identidock-picto
+  strategy:
+    rollingUpdate:
+      maxSurge: "100%"
+      maxUnavailable: "0%"
+  template:
+    metadata:
+      labels:
+        app: identidock-picto
+    spec:
+      containers:
+        - name: identidock-picto
+          image: 
+          ports:
+            - name: identipict-http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /monster/test?size=1
+            successThreshold: 1
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /monster/test?size=1
+            successThreshold: 1
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            failureThreshold: 2
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "360m"
+              memory: "300Mi"
+            limits:
+              cpu: "450m"
+              memory: "450Mi"
+      restartPolicy: Always

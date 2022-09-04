@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-userlist-pvc
+spec:
+  storageClassName: ""
+  accessModes:
+    - "ReadWriteMany"
+  resources:
+    requests:
+      storage: "100Mi"
+  volumeName: "nfs-mongo-user-data" 

@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identidock-ui
+  annotations:
+    linkerd.io/inject: enabled
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: identidock-ui
+  strategy:
+    rollingUpdate:
+      maxSurge: "25%"
+      maxUnavailable: "25%"
+  template:
+    metadata:
+      labels:
+        app: identidock-ui
+    spec:
+      imagePullSecrets:
+        - name: webapps-reg-secret
+      containers:
+        - name: identidock-ui
+          image:
+          ports:
+            - name: identiui-http
+              containerPort: 80
+          env:
+            - name: CACHING_SERVER_IP_ADDRESS
+              value: caching-svc.webapps.svc.cluster.local
+            - name: PING_IP_ADDRESS
+              value: pingserver-svc.webapps.svc.cluster.local
+          readinessProbe:
+            httpGet:
+              port: 80
+              path: /registration
+            successThreshold: 1
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              port: 80
+              path: /registration
+            successThreshold: 1
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            failureThreshold: 2
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "70m"
+              memory: "100Mi"
+            limits:
+              cpu: "140m"
+              memory: "150Mi"
+      restartPolicy: Always

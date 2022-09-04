@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: volumes
+spec:
+  destination:
+    name: in-cluster
+    namespace: webapps
+  project: default
+  source:
+    repoURL: https://github.com/armenmelkonyan90/devops_task_ArgoCD.git
+    path: Volumes
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

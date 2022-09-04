@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pingserver-svc
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: identirqst-http
+      protocol: "TCP"
+  selector:
+    app: identidock-requester
